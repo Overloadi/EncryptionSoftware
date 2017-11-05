@@ -50,6 +50,8 @@ namespace EncryptionSoftware
             // rc2 test
             using (RC2 myRC2 = RC2.Create())
             {
+                Console.WriteLine("RC2");
+                Console.WriteLine("-------------");
                 byte[] keyArray2;
                 SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
                 keyArray2 = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
@@ -66,6 +68,8 @@ namespace EncryptionSoftware
             // tripledes test
             using (TripleDES myDes = TripleDES.Create())
             {
+                Console.WriteLine("TRIPLEDES");
+                Console.WriteLine("-------------");
                 byte[] IV = myDes.IV;
                 byte[] encrypted = EncryptTripleDes(data, keyArray, IV);
                 Console.WriteLine(Convert.ToBase64String(encrypted, 0, encrypted.Length));
@@ -76,6 +80,8 @@ namespace EncryptionSoftware
             // aes test
             using (Aes myAes = Aes.Create())
             {
+                Console.WriteLine("AES");
+                Console.WriteLine("-------------");
                 byte[] encrypted = EncryptStringToBytes_Aes(data, myAes.Key, myAes.IV);
 
                 string decrypted = DecryptStringFromBytes_Aes(encrypted, myAes.Key, myAes.IV);
@@ -88,6 +94,13 @@ namespace EncryptionSoftware
             } 
         }
 
+        /// <summary>
+        /// Encrypt plaintext to a file with the RC2 algorithm
+        /// </summary>
+        /// <param name="plainText">Plaintext</param>
+        /// <param name="fileName">Name of the file</param>
+        /// <param name="KeyArray">Key, which is converted to an byte array</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
         public static void EncryptRC2(string plainText, string fileName, byte[] KeyArray, byte[] IV)
         {
             try
@@ -101,7 +114,7 @@ namespace EncryptionSoftware
                 cryptoStream.Close();
                 fileStream.Close();
             }
-            catch(CryptographicException cryptoException)
+            catch (CryptographicException cryptoException)
             {
                 Console.WriteLine(cryptoException.Message);
             }
@@ -109,22 +122,46 @@ namespace EncryptionSoftware
             {
                 Console.WriteLine(fileException.Message);
             }
-            catch(IOException ioException)
+            catch (IOException ioException)
             {
                 Console.WriteLine(ioException.Message);
             }
         }
 
+        /// <summary>
+        /// Decrypt a file that is encrypted with RC2
+        /// </summary>
+        /// <param name="fileName">Name of the file</param>
+        /// <param name="KeyArray">Key, which is converted to an byte array</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
+        /// <returns></returns>
         public static string DecryptRC2(string fileName, byte[] KeyArray, byte[] IV)
         {
-            FileStream fileStream = File.Open(fileName, FileMode.Open);
-            RC2 myRC2 = RC2.Create();
-            CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IV), CryptoStreamMode.Read);
-            StreamReader streamReader = new StreamReader(cryptoStream);
-            string plainText = streamReader.ReadLine();
-            streamReader.Close();
-            cryptoStream.Close();
-            fileStream.Close();
+            string plainText = "";
+            try
+            {
+                FileStream fileStream = File.Open(fileName, FileMode.Open);
+                RC2 myRC2 = RC2.Create();
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IV), CryptoStreamMode.Read);
+                StreamReader streamReader = new StreamReader(cryptoStream);
+                plainText = streamReader.ReadLine();
+                streamReader.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+                
+            }
+            catch (CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
             return plainText;
         }
 
@@ -134,14 +171,12 @@ namespace EncryptionSoftware
         /// </summary>
         /// <param name="data">Plaintext</param>
         /// <param name="keyArray">Key, which is converted to an byte array</param>
-        /// <param name="IV">initialization vector</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
         /// <returns>Encrypted byte array</returns>
         public static byte[] EncryptTripleDes(string data, byte[] keyArray, byte[] IV)
         {
             // byte[] keyArray;
             byte[] dataArray = UTF8Encoding.UTF8.GetBytes(data);
-
-
 
             /// keyArray = UTF8Encoding.UTF8.GetBytes(key);
             TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
@@ -170,11 +205,11 @@ namespace EncryptionSoftware
         /// </summary>
         /// <param name="cipher">Ciphertext</param>
         /// <param name="keyArray">Key, which is converted to an byte array</param>
-        /// <param name="IV">initialization vector</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
         /// <returns>Plaintext</returns>
         public static string DecryptTripleDes(byte[] cipher, byte[] keyArray, byte[] IV)
         {
-            // byte[] keyArray;
+            // byte[] keyArray;ccc
             byte[] dataArray = cipher;
 
             /*SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
@@ -204,14 +239,20 @@ namespace EncryptionSoftware
             return UTF8Encoding.UTF8.GetString(resultArray);
         }
 
-
-        static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
+        /// <summary>
+        /// Encrypt plain text with AES algorithm
+        /// </summary>
+        /// <param name="plainText">Plaintext</param>
+        /// <param name="keyArray">Key, which is converted to an byte array</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
+        /// <returns>Encrypted text</returns>
+        static byte[] EncryptStringToBytes_Aes(string plainText, byte[] keyArray, byte[] IV)
         {
             byte[] encrypted;
 
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = Key;
+                aesAlg.Key = keyArray;
                 aesAlg.IV = IV;
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
                 using (MemoryStream msEncrypt = new MemoryStream())
@@ -229,12 +270,19 @@ namespace EncryptionSoftware
             return encrypted;
         }
 
-        static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] Key, byte[] IV)
+        /// <summary>
+        /// Decrypt text encrypted with AES
+        /// </summary>
+        /// <param name="cipherText">Cipher text</param>
+        /// <param name="keyArray">Key, which is converted to an byte array</param>
+        /// <param name="IV">Initialization vector in an byte array</param>
+        /// <returns>Plain text</returns>
+        static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] keyArray, byte[] IV)
         {
             string plaintext = null;
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = Key;
+                aesAlg.Key = keyArray;
                 aesAlg.IV = IV;
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
