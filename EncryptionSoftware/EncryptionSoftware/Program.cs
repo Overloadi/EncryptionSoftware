@@ -38,13 +38,32 @@ namespace EncryptionSoftware
             Console.ReadLine(); */
             string data = "hellohellohellohello";
             string key = "irvhjklqvbytdjkpdksnh";
-
+            string fileName = "test.txt";
             byte[] keyArray;
+            // calculate sha512 hash from key and trim it to 192 bits
             SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
             keyArray = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
             byte[] trimmedBytes = new byte[24];
             Buffer.BlockCopy(keyArray, 0, trimmedBytes, 0, 24);
             keyArray = trimmedBytes;
+
+            // rc2 test
+            using (RC2 myRC2 = RC2.Create())
+            {
+                byte[] keyArray2;
+                SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
+                keyArray2 = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes2 = new byte[8];
+                Buffer.BlockCopy(keyArray2, 0, trimmedBytes, 0, 8);
+                keyArray2 = trimmedBytes2;
+
+                byte[] IV = myRC2.IV;
+                EncryptRC2(data, fileName, keyArray2, IV);
+                string decryptedRC2 = DecryptRC2(fileName, keyArray2, IV);
+                Console.WriteLine(decryptedRC2);
+            }
+
+            // tripledes test
             using (TripleDES myDes = TripleDES.Create())
             {
                 byte[] IV = myDes.IV;
@@ -54,6 +73,7 @@ namespace EncryptionSoftware
                 Console.WriteLine(decrypted);
             }
 
+            // aes test
             using (Aes myAes = Aes.Create())
             {
                 byte[] encrypted = EncryptStringToBytes_Aes(data, myAes.Key, myAes.IV);
@@ -67,6 +87,47 @@ namespace EncryptionSoftware
 
             } 
         }
+
+        public static void EncryptRC2(string plainText, string fileName, byte[] KeyArray, byte[] IV)
+        {
+            try
+            {
+                FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                RC2 myRC2 = RC2.Create();
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateEncryptor(KeyArray, IV), CryptoStreamMode.Write);
+                StreamWriter streamWriter = new StreamWriter(cryptoStream);
+                streamWriter.WriteLine(plainText);
+                streamWriter.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+            }
+            catch(CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch(IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
+        }
+
+        public static string DecryptRC2(string fileName, byte[] KeyArray, byte[] IV)
+        {
+            FileStream fileStream = File.Open(fileName, FileMode.Open);
+            RC2 myRC2 = RC2.Create();
+            CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IV), CryptoStreamMode.Read);
+            StreamReader streamReader = new StreamReader(cryptoStream);
+            string plainText = streamReader.ReadLine();
+            streamReader.Close();
+            cryptoStream.Close();
+            fileStream.Close();
+            return plainText;
+        }
+
 
         /// <summary>
         /// Encrypt plaintext with Triple DES
