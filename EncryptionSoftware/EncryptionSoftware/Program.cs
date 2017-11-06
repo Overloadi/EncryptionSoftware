@@ -85,13 +85,10 @@ namespace EncryptionSoftware
                 fileName = "aes.txt";
                 Console.WriteLine("AES");
                 Console.WriteLine("-------------");
-                byte[] encrypted = EncryptStringToBytes_Aes(data, myAes.Key, myAes.IV);
+                EncryptAES(fileName, myAes.Key, myAes.IV);
 
-                string decrypted = DecryptStringFromBytes_Aes(encrypted, myAes.Key, myAes.IV);
+                string decrypted = DecryptAES(fileName, myAes.Key, myAes.IV);
 
-                Console.WriteLine("Data: " + data);
-                Console.WriteLine("Key : " + myAes.Key.ToString());
-                Console.WriteLine("Encrypted: " + encrypted.ToString());
                 Console.WriteLine("Decrypted: " + decrypted);
 
             } 
@@ -272,15 +269,40 @@ namespace EncryptionSoftware
         }
 
         /// <summary>
-        /// Encrypt plain text with AES algorithm
+        /// Encrypt plain text with AES algorithm and save it to a file
         /// </summary>
         /// <param name="plainText">Plaintext</param>
         /// <param name="keyArray">Key, which is converted to an byte array</param>
         /// <param name="IV">Initialization vector in an byte array</param>
-        /// <returns>Encrypted text</returns>
-        static byte[] EncryptStringToBytes_Aes(string plainText, byte[] keyArray, byte[] IV)
+        public static void EncryptAES(string fileName, byte[] keyArray, byte[] IV)
         {
-            byte[] encrypted;
+            string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+            try
+            {
+                string plainText = File.ReadAllText(path);
+                fileName = "ENCRYPTED" + fileName;
+                FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                Aes myAES = Aes.Create();
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateEncryptor(keyArray, IV), CryptoStreamMode.Write);
+                StreamWriter streamWriter = new StreamWriter(cryptoStream);
+                streamWriter.WriteLine(plainText);
+                streamWriter.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+            }
+            catch (CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
+            /*byte[] encrypted;
 
             using (Aes aesAlg = Aes.Create())
             {
@@ -299,19 +321,46 @@ namespace EncryptionSoftware
                     }
                 }
             }
-            return encrypted;
+            return encrypted; */
+
         }
 
         /// <summary>
-        /// Decrypt text encrypted with AES
+        /// Decrypt text encrypted with AES in a file
         /// </summary>
-        /// <param name="cipherText">Cipher text</param>
+        /// <param name="fileName">Name of the file</param>
         /// <param name="keyArray">Key, which is converted to an byte array</param>
         /// <param name="IV">Initialization vector in an byte array</param>
         /// <returns>Plain text</returns>
-        static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] keyArray, byte[] IV)
+        public static string DecryptAES(string fileName, byte[] keyArray, byte[] IV)
         {
-            string plaintext = null;
+            string plainText = "";
+            try
+            {
+                fileName = "ENCRYPTED" + fileName;
+                FileStream fileStream = File.Open(fileName, FileMode.Open);
+                Aes myAES = Aes.Create();
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateDecryptor(keyArray, IV), CryptoStreamMode.Read);
+                StreamReader streamReader = new StreamReader(cryptoStream);
+                plainText = streamReader.ReadLine();
+                streamReader.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+            }
+            catch (CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
+            return plainText;
+            /* string plaintext = null;
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = keyArray;
@@ -330,7 +379,8 @@ namespace EncryptionSoftware
                     }
                 }
             }
-            return plaintext;
+            return plaintext; */
+
         }
     }
 }
