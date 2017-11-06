@@ -7,7 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,0,-93">
+        <Button x:Name="button_aes" Content="AES" HorizontalAlignment="Left" Margin="35,183,0,0" VerticalAlignment="Top" Height="152" Width="534" FontSize="72" Click="button_aes_Click"/>
+        <Button x:Name="button_3des" Content="3DES" HorizontalAlignment="Left" Margin="35,366,0,0" VerticalAlignment="Top" Height="152" Width="534" FontSize="72" Click="button_3des_Click"/>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Margin="35,40,1052,990" TextWrapping="Wrap" Text="Encryption software" VerticalAlignment="Center" Height="143" Width="833" FontSize="72"/>
+        <Button x:Name="button_rc2" Content="RC2" HorizontalAlignment="Left" Margin="35,549,0,0" VerticalAlignment="Top" Height="152" Width="534" FontSize="72" Click="button_rc2_Click"/>
+        <Button x:Name="button1" Content="Select File " HorizontalAlignment="Left" Margin="678,183,0,0" VerticalAlignment="Top" Height="152" Width="446" FontSize="72"/>
+        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="35,732,0,0" TextWrapping="Wrap" Text="Selected Algorithm:" VerticalAlignment="Top" Height="101" Width="644" FontSize="72"/>
+        <TextBlock x:Name="selected_algo" HorizontalAlignment="Left" Margin="684,738,0,0" TextWrapping="Wrap" Text="-" VerticalAlignment="Top" Height="95" Width="263" FontSize="72"/>
+        <Button x:Name="button_encrypt" Content="Encrypt" HorizontalAlignment="Left" Margin="35,863,0,0" VerticalAlignment="Top" Height="152" Width="635" FontSize="72" Click="encrypt_click"/>
+        <Button x:Name="button_Copy" Content="Decrypt" HorizontalAlignment="Left" Margin="734,863,0,0" VerticalAlignment="Top" Height="152" Width="635" FontSize="72"/>
 
     </Grid>
 </Page>
