@@ -15,29 +15,15 @@ namespace EncryptionSoftware
     {
         static void Main(string[] args)
         {
-            /* StreamReader sr = new StreamReader("source.txt");
+            TcpClient client = new TcpClient();
 
-            TcpClient tcpClient = new TcpClient();
-            tcpClient.Connect(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 5442));
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.3"), 8888);
+            client.Connect(serverEndPoint);
+            NetworkStream ns = client.GetStream();
 
-            byte[] buffer = new byte[1500];
-            long bytesSent = 0;
-
-            while (bytesSent < sr.BaseStream.Length)
-            {
-                int bytesRead = sr.BaseStream.Read(buffer, 0, 1500);
-                tcpClient.GetStream().Write(buffer, 0, bytesRead);
-                Console.WriteLine(bytesRead + " bytes sent.");
-
-                bytesSent += bytesRead;
-            }
-
-            tcpClient.Close();
-            
-            Console.WriteLine("finished");
-            Console.ReadLine(); */
             Console.WriteLine(Directory.GetCurrentDirectory());
             string data = "hellohellohellohello";
+            
             string key = "irvhjklqvbytdjkpdksnh";
             string fileName = "test.txt";
             byte[] keyArray;
@@ -63,6 +49,7 @@ namespace EncryptionSoftware
 
                 byte[] IV = myRC2.IV;
                 EncryptRC2(fileName, keyArray2, IV);
+                sendFile("ENCRYPTEDrc2.txt");
                 string decryptedRC2 = DecryptRC2(fileName, keyArray2, IV);
                 Console.WriteLine(decryptedRC2);
             }
@@ -92,6 +79,35 @@ namespace EncryptionSoftware
                 Console.WriteLine("Decrypted: " + decrypted);
 
             } 
+        }
+
+        public static void sendFile(string fileName)
+        {
+            string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+            TcpClient client = new TcpClient();
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.3"), 8888);
+            client.Connect(serverEndPoint);
+            NetworkStream ns = client.GetStream();
+            // FileStream fs = File.Open(fileName, FileMode.Open);
+            byte[] fileData = File.ReadAllBytes(path);
+            ns.Write(fileData, 0, fileData.Length);
+            Console.WriteLine("Sent the data from file");
+            // Receive the TcpServer.response.
+
+            // Buffer to store the response bytes.
+            byte[] data2 = new Byte[256];
+
+            // String to store the response ASCII representation.
+            String responseData = String.Empty;
+
+            // Read the first batch of the TcpServer response bytes.
+            Int32 bytes = ns.Read(data2, 0, data2.Length);
+            responseData = System.Text.Encoding.ASCII.GetString(data2, 0, bytes);
+            Console.WriteLine("Received: {0}", responseData);
+
+            // Close everything.
+            ns.Close();
+            client.Close();
         }
 
         /// <summary>

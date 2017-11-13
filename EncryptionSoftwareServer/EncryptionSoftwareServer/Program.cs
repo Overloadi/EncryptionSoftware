@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace EncryptionSoftwareServer
@@ -14,37 +13,44 @@ namespace EncryptionSoftwareServer
     {
         static void Main(string[] args)
         {
-            ThreadPool.QueueUserWorkItem(StartTCPServer);
-
-        }
-        private static void StartTCPServer(object state)
-        {
-            TcpListener tcpServer = new TcpListener(IPAddress.Parse("192.168.0.3"), 5442);
-            tcpServer.Start();
-            TcpClient client = tcpServer.AcceptTcpClient();
-
-            Console.WriteLine("Client connection accepted from " + client.Client.RemoteEndPoint + ".");
-
-            StreamWriter sw = new StreamWriter("destination.txt");
-
-            byte[] buffer = new byte[1500];
-            int bytesRead = 1;
-
-            while (bytesRead > 0)
+            string fileName = "received.txt";
+            int j = 0;
+            
+            TcpListener server = new TcpListener(IPAddress.Any, 8888);
+            server.Start();
+            Byte[] bytes = new Byte[256];
+            string data = null;
+            while (true)
             {
-                bytesRead = client.GetStream().Read(buffer, 0, 1500);
+                fileName = j + fileName;
+                FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                Console.WriteLine("Waiting for connection");
+                TcpClient client = server.AcceptTcpClient();
+                Console.WriteLine("Client connected");
+                data = null;
+                NetworkStream stream = client.GetStream();
+                int i;
 
-                if (bytesRead == 0)
+                // Loop to receive all the data sent by the client.
+                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
-                    break;
+                    fileStream.Write(bytes, 0, bytes.Length);
+                    // Translate data bytes to a ASCII string.
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    Console.WriteLine("Received: {0}", data);
+
+                    byte[] msg = System.Text.Encoding.ASCII.GetBytes("Kuitti");
+
+                    // Send back a response.
+                    stream.Write(msg, 0, msg.Length);
+                    Console.WriteLine("Sent: {0}", data);
                 }
 
-                sw.BaseStream.Write(buffer, 0, bytesRead);
-                Console.WriteLine(bytesRead + " written.");
+                // Shutdown and end connection
+                client.Close();
+                fileStream.Close();
+                j++;
             }
-
-            sw.Close();
         }
-
     }
 }
