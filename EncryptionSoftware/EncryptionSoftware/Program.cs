@@ -14,13 +14,7 @@ namespace EncryptionSoftware
     class Program
     {
         static void Main(string[] args)
-        {
-            TcpClient client = new TcpClient();
-
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.3"), 8888);
-            client.Connect(serverEndPoint);
-            NetworkStream ns = client.GetStream();
-
+        { 
             Console.WriteLine(Directory.GetCurrentDirectory());
             string data = "hellohellohellohello";
             
@@ -85,17 +79,18 @@ namespace EncryptionSoftware
         {
             string path = Directory.GetCurrentDirectory() + "\\" + fileName;
             TcpClient client = new TcpClient();
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("192.168.0.3"), 8888);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8888);
             client.Connect(serverEndPoint);
             NetworkStream ns = client.GetStream();
             // FileStream fs = File.Open(fileName, FileMode.Open);
             byte[] fileData = File.ReadAllBytes(path);
             ns.Write(fileData, 0, fileData.Length);
             Console.WriteLine("Sent the data from file");
+
             // Receive the TcpServer.response.
 
             // Buffer to store the response bytes.
-            byte[] data2 = new Byte[256];
+            /*byte[] data2 = new Byte[256];
 
             // String to store the response ASCII representation.
             String responseData = String.Empty;
@@ -104,10 +99,13 @@ namespace EncryptionSoftware
             Int32 bytes = ns.Read(data2, 0, data2.Length);
             responseData = System.Text.Encoding.ASCII.GetString(data2, 0, bytes);
             Console.WriteLine("Received: {0}", responseData);
-
+            */
             // Close everything.
-            ns.Close();
             client.Close();
+            
+            ns.Close();
+            // System.Threading.Thread.Sleep(5000);
+
         }
 
         /// <summary>
