@@ -35,9 +35,9 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.button_sendFile = new System.Windows.Forms.Button();
+            this.textBox_tcp_port = new System.Windows.Forms.TextBox();
+            this.textBox_ip_address = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -105,29 +105,29 @@
             this.textBox1.Size = new System.Drawing.Size(303, 188);
             this.textBox1.TabIndex = 7;
             // 
-            // button1
+            // button_sendFile
             // 
-            this.button1.Location = new System.Drawing.Point(423, 248);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(160, 44);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Send File";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button_sendFile.Location = new System.Drawing.Point(423, 248);
+            this.button_sendFile.Name = "button_sendFile";
+            this.button_sendFile.Size = new System.Drawing.Size(160, 44);
+            this.button_sendFile.TabIndex = 8;
+            this.button_sendFile.Text = "Send File";
+            this.button_sendFile.UseVisualStyleBackColor = true;
+            this.button_sendFile.Click += new System.EventHandler(this.button_sendFile_Click);
             // 
-            // textBox2
+            // textBox_tcp_port
             // 
-            this.textBox2.Location = new System.Drawing.Point(423, 222);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(160, 20);
-            this.textBox2.TabIndex = 9;
+            this.textBox_tcp_port.Location = new System.Drawing.Point(423, 222);
+            this.textBox_tcp_port.Name = "textBox_tcp_port";
+            this.textBox_tcp_port.Size = new System.Drawing.Size(160, 20);
+            this.textBox_tcp_port.TabIndex = 9;
             // 
-            // textBox3
+            // textBox_ip_address
             // 
-            this.textBox3.Location = new System.Drawing.Point(423, 193);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(160, 20);
-            this.textBox3.TabIndex = 10;
+            this.textBox_ip_address.Location = new System.Drawing.Point(423, 193);
+            this.textBox_ip_address.Name = "textBox_ip_address";
+            this.textBox_ip_address.Size = new System.Drawing.Size(160, 20);
+            this.textBox_ip_address.TabIndex = 10;
             // 
             // label1
             // 
@@ -154,9 +154,9 @@
             this.ClientSize = new System.Drawing.Size(595, 304);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.textBox_ip_address);
+            this.Controls.Add(this.textBox_tcp_port);
+            this.Controls.Add(this.button_sendFile);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.file_label);
@@ -179,9 +179,9 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Button button_sendFile;
+        private System.Windows.Forms.TextBox textBox_tcp_port;
+        private System.Windows.Forms.TextBox textBox_ip_address;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
     }
