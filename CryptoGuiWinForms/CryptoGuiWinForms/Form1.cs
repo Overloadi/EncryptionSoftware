@@ -20,6 +20,7 @@ namespace CryptoGuiWinForms
     
     public partial class Form1 : Form
     {
+        public static string key = "irvhjklqvbytdjkpdksnh";
         public static string fileName;
         public static byte[] keyArrayAES;
         public static byte[] IVAES;
@@ -159,7 +160,7 @@ namespace CryptoGuiWinForms
             try
             {
                 byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-                fileName = "ENCRYPTED" + fileName;
+                // fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 RC2 myRC2 = RC2.Create();
                 CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IVTESTI), CryptoStreamMode.Read);
@@ -195,7 +196,7 @@ namespace CryptoGuiWinForms
         {
             try
             {
-                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7};
                 string path = Directory.GetCurrentDirectory() + "\\" + fileName;
                 string plainText = File.ReadAllText(path);
                 fileName = "ENCRYPTED" + fileName;
@@ -239,8 +240,8 @@ namespace CryptoGuiWinForms
             try
             {
                 // Changed random IV to IV that is static all the time! 
-                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-                fileName = "ENCRYPTED" + fileName;
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7};
+                // fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 TripleDES myTDES = TripleDES.Create();
                 CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArray, IVTESTI), CryptoStreamMode.Read);
@@ -318,7 +319,7 @@ namespace CryptoGuiWinForms
             try
             {
                 byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,14,15 };
-                fileName = "ENCRYPTED" + fileName;
+                // fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 Aes myAES = Aes.Create();
                 CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateDecryptor(keyArray, IVTESTI), CryptoStreamMode.Read);
@@ -368,20 +369,33 @@ namespace CryptoGuiWinForms
         {
             if (comboBox1.SelectedIndex == 0)
             {
-                
+                SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
+                keyArrayAES = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes = new byte[24];
+                Buffer.BlockCopy(keyArrayAES, 0, trimmedBytes, 0, 24);
+                keyArrayAES = trimmedBytes;
                 string temp = DecryptAES(fileName, keyArrayAES, IVAES);
                 textBox1.Text = temp;
             }
 
             if (comboBox1.SelectedIndex == 1)
             {
-
+                SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
+                keyArrayRC2 = hash2.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes2 = new byte[8];
+                Buffer.BlockCopy(keyArrayRC2, 0, trimmedBytes2, 0, 8);
+                keyArrayRC2 = trimmedBytes2;
                 string tempRC2 = DecryptRC2(fileName, keyArrayRC2, IVRC2);
                 textBox1.Text = tempRC2;
             }
             if (comboBox1.SelectedIndex == 2)
             {
-                
+                // string key = "irvhjklqvbytdjkpdksnh";
+                SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
+                keyArrayTDES = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes = new byte[24];
+                Buffer.BlockCopy(keyArrayTDES, 0, trimmedBytes, 0, 24);
+                keyArrayTDES = trimmedBytes;
                 string tempTDES = DecryptTripleDes(fileName, keyArrayTDES, IVTDES);
                 textBox1.Text = tempTDES;
             }
@@ -400,7 +414,7 @@ namespace CryptoGuiWinForms
         
             if (comboBox1.SelectedIndex == 0)
             {
-                string key = "irvhjklqvbytdjkpdksnh";
+                // string key = "irvhjklqvbytdjkpdksnh";
                 // string fileName = "test.txt";
                 // Calculate hash for the key with SHA-512
                 SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
@@ -410,9 +424,9 @@ namespace CryptoGuiWinForms
                 keyArrayAES = trimmedBytes;
                 using (Aes myAes = Aes.Create())
                 {
-                    myAes.Key = keyArrayAES;
-                    IVAES = myAes.IV;
-                    string fileN = EncryptAES(fileName, myAes.Key, myAes.IV);
+                    // myAes.Key = keyArrayAES;
+                    // IVAES = myAes.IV;
+                    string fileN = EncryptAES(fileName, keyArrayAES, myAes.IV);
                     byte[] tempbyte = File.ReadAllBytes(fileN);
                     textBox1.Text = Encoding.UTF8.GetString(tempbyte);
                 }
@@ -420,7 +434,7 @@ namespace CryptoGuiWinForms
             }
            if (comboBox1.SelectedIndex == 1)
             {
-                string key = "irvhjklqvbytdjkpdksnh";
+                // string key = "irvhjklqvbytdjkpdksnh";
                 SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
                 keyArrayRC2 = hash2.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
                 byte[] trimmedBytes2 = new byte[8];
@@ -437,7 +451,7 @@ namespace CryptoGuiWinForms
                     keyArrayRC2 = trimmedBytes; */
 
                     
-                    IVRC2 = myRC2.IV;
+                    // IVRC2 = myRC2.IV;
                     string fileN2 = EncryptRC2(fileName, keyArrayRC2, IVRC2);
                     byte[] tempbyte2 = File.ReadAllBytes(fileN2);
                     textBox1.Text = Encoding.UTF8.GetString(tempbyte2);
@@ -446,7 +460,7 @@ namespace CryptoGuiWinForms
             }
            if (comboBox1.SelectedIndex == 2)
             {
-                string key = "irvhjklqvbytdjkpdksnh";
+                // string key = "irvhjklqvbytdjkpdksnh";
                 SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
                 keyArrayTDES = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
                 byte[] trimmedBytes = new byte[24];
@@ -455,8 +469,8 @@ namespace CryptoGuiWinForms
                 using (TripleDES myDes = TripleDES.Create())
                 {
                     keyArrayTDES = myDes.Key;
-                    byte[] IVTDES = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-                    //VTDES = myDes.IV;
+                    byte[] IVTDES = { 0, 1, 2, 3, 4, 5, 6, 7};
+                    // IVTDES = myDes.IV;
                     
                     string fileN3 = EncryptTripleDes(fileName, keyArrayTDES, IVTDES);
                     byte[] tempbyte3 = File.ReadAllBytes(fileN3);
