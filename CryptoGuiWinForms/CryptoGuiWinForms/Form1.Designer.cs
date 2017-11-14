@@ -34,6 +34,7 @@
             this.file_label = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // encrypt
@@ -90,11 +91,21 @@
             this.comboBox1.Size = new System.Drawing.Size(84, 21);
             this.comboBox1.TabIndex = 6;
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(12, 104);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox1.Size = new System.Drawing.Size(303, 188);
+            this.textBox1.TabIndex = 7;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(595, 98);
+            this.ClientSize = new System.Drawing.Size(595, 304);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.file_label);
             this.Controls.Add(this.button_file);
@@ -115,6 +126,7 @@
         private System.Windows.Forms.Label file_label;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 
