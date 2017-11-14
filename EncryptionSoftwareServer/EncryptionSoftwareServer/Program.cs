@@ -7,6 +7,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Server for the encryption software. Listens to port 8888 and accepts clients from any IP address. When a client connects, the server reads the message in chunks
+/// and writes the content of the message to a file.
+/// </summary>
 namespace EncryptionSoftwareServer
 {
     class Program
@@ -14,9 +18,9 @@ namespace EncryptionSoftwareServer
         static void Main(string[] args)
         {
             string fileName = "received.txt";
-            int j = 0;
+
+            // Create and start server
             int port = 8888;
-            
             TcpListener server = new TcpListener(IPAddress.Any, port);
             server.Start();
             Console.WriteLine("Listening to port: " + port);
@@ -24,6 +28,8 @@ namespace EncryptionSoftwareServer
             Socket client = server.AcceptSocket();
             Console.WriteLine("Client connected");
             int bytesRead = 0;
+
+            // Read incoming data
             using (NetworkStream ns = new NetworkStream(client))
             {
                 int messageSize = 256;

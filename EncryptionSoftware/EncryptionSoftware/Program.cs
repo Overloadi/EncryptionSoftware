@@ -9,6 +9,10 @@ using System.Net.Sockets;
 using System.Net;
 using System.Configuration;
 
+/// <summary>
+/// Software, that encrypts the contents of a file and saves the encrypted text to a different file, called "ENCRYPTED<filename>". The software has three
+/// algorithms, that can be used to encrypt: AES, TripleDES and RC2. There is also an option to transfer a file to the EncryptionSoftware server.
+/// </summary>
 namespace EncryptionSoftware
 {
     class Program
@@ -21,14 +25,15 @@ namespace EncryptionSoftware
             string key = "irvhjklqvbytdjkpdksnh";
             string fileName = "test.txt";
             byte[] keyArray;
-            // calculate sha512 hash from key and trim it to 192 bits
+
+            // Calculate hash for the key with SHA-512
             SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
             keyArray = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
             byte[] trimmedBytes = new byte[24];
             Buffer.BlockCopy(keyArray, 0, trimmedBytes, 0, 24);
             keyArray = trimmedBytes;
 
-            // rc2 test
+            // RC2 Encrypt and decrypt test
             using (RC2 myRC2 = RC2.Create())
             {
                 fileName = "rc2.txt";
@@ -48,7 +53,7 @@ namespace EncryptionSoftware
                 Console.WriteLine(decryptedRC2);
             }
 
-            // tripledes test
+            // TripleDES Encrypt and decrypt test
             using (TripleDES myDes = TripleDES.Create())
             {
                 fileName = "tripledes.txt";
@@ -60,7 +65,7 @@ namespace EncryptionSoftware
                 Console.WriteLine(decrypted);
             }
 
-            // aes test
+            // AES Encrypt and decrypt test
             using (Aes myAes = Aes.Create())
             {
                 fileName = "aes.txt";
@@ -75,6 +80,10 @@ namespace EncryptionSoftware
             } 
         }
 
+        /// <summary>
+        /// Read the content of a file and send it to the server, which is now located at the same computer
+        /// </summary>
+        /// <param name="fileName">Name of the file</param>
         public static void sendFile(string fileName)
         {
             string path = Directory.GetCurrentDirectory() + "\\" + fileName;
@@ -82,30 +91,13 @@ namespace EncryptionSoftware
             IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8888);
             client.Connect(serverEndPoint);
             NetworkStream ns = client.GetStream();
-            // FileStream fs = File.Open(fileName, FileMode.Open);
+            
             byte[] fileData = File.ReadAllBytes(path);
             ns.Write(fileData, 0, fileData.Length);
             Console.WriteLine("Sent the data from file");
-
-            // Receive the TcpServer.response.
-
-            // Buffer to store the response bytes.
-            /*byte[] data2 = new Byte[256];
-
-            // String to store the response ASCII representation.
-            String responseData = String.Empty;
-
-            // Read the first batch of the TcpServer response bytes.
-            Int32 bytes = ns.Read(data2, 0, data2.Length);
-            responseData = System.Text.Encoding.ASCII.GetString(data2, 0, bytes);
-            Console.WriteLine("Received: {0}", responseData);
-            */
-            // Close everything.
-            client.Close();
             
+            client.Close();
             ns.Close();
-            // System.Threading.Thread.Sleep(5000);
-
         }
 
         /// <summary>
@@ -183,7 +175,6 @@ namespace EncryptionSoftware
             return plainText;
         }
 
-
         /// <summary>
         /// Encrypt plaintext from file with Triple DES to a file
         /// </summary>
@@ -192,43 +183,36 @@ namespace EncryptionSoftware
         /// <param name="IV">Initialization vector in an byte array</param>
         public static void EncryptTripleDes(string fileName, byte[] keyArray, byte[] IV)
         {
-            string path = Directory.GetCurrentDirectory() + "\\" + fileName;
-            string plainText = File.ReadAllText(path);
-            fileName = "ENCRYPTED" + fileName;
-            FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            
-            // string data = File.ReadAllText(path);
-            // byte[] keyArray;
-            // byte[] dataArray = Convert.FromBase64String(data);
+            try
+            {
+                string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+                string plainText = File.ReadAllText(path);
+                fileName = "ENCRYPTED" + fileName;
+                FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            /// keyArray = UTF8Encoding.UTF8.GetBytes(key);
-            // TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            TripleDES myTDES = TripleDES.Create();
-            //set the secret key for the tripleDES algorithm
-            // myDES.Key = keyArray;
-            // myDES.IV = IV;
-            //mode of operation. there are other 4 modes.
-            //We choose ECB(Electronic code Book)
-            // myDES.Mode = CipherMode.CBC;
-            //padding mode(if any extra byte added)
-            // myDES.Padding = PaddingMode.Zeros;
-            CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateEncryptor(keyArray, IV), CryptoStreamMode.Write);
-            StreamWriter streamWriter = new StreamWriter(cryptoStream);
-            streamWriter.WriteLine(plainText);
-            streamWriter.Close();
-            cryptoStream.Close();
-            fileStream.Close();
-            // ICryptoTransform cTransform = tdes.CreateEncryptor(tdes.Key, tdes.IV);
-            //transform the specified region of bytes array to resultArray
-            //byte[] resultArray =
-            //  cTransform.TransformFinalBlock(dataArray, 0,
-            //  dataArray.Length);
-            //Release resources held by TripleDes Encryptor
-            //tdes.Clear();
-            //Return the encrypted data into unreadable string format
-            // path = Directory.GetCurrentDirectory() + "\\" + "ENCRYPTED" + fileName;
-           
-            // File.WriteAllBytes(path,resultArray);
+                TripleDES myTDES = TripleDES.Create();
+
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateEncryptor(keyArray, IV), CryptoStreamMode.Write);
+                StreamWriter streamWriter = new StreamWriter(cryptoStream);
+                streamWriter.WriteLine(plainText);
+
+                streamWriter.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+            }
+            catch (CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
+
         }
 
         /// <summary>
@@ -240,46 +224,35 @@ namespace EncryptionSoftware
         /// <returns>Plain text</returns>
         public static string DecryptTripleDes(string fileName, byte[] keyArray, byte[] IV)
         {
-            // byte[] keyArray;ccc
             string plainText = "";
-            // string path = Directory.GetCurrentDirectory() + "\\" + fileName;
-            fileName = "ENCRYPTED" + fileName;
-            FileStream fileStream = File.Open(fileName, FileMode.Open);
-            TripleDES myTDES = TripleDES.Create();
-            CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArray, IV), CryptoStreamMode.Read);
-            StreamReader streamReader = new StreamReader(cryptoStream);
-            plainText = streamReader.ReadLine();
-            streamReader.Close();
-            cryptoStream.Close();
-            fileStream.Close();
+            try
+            {
+                
+                fileName = "ENCRYPTED" + fileName;
+                FileStream fileStream = File.Open(fileName, FileMode.Open);
+                TripleDES myTDES = TripleDES.Create();
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArray, IV), CryptoStreamMode.Read);
+                StreamReader streamReader = new StreamReader(cryptoStream);
+                plainText = streamReader.ReadLine();
+                streamReader.Close();
+                cryptoStream.Close();
+                fileStream.Close();
+            }
+
+            catch (CryptographicException cryptoException)
+            {
+                Console.WriteLine(cryptoException.Message);
+            }
+            catch (UnauthorizedAccessException fileException)
+            {
+                Console.WriteLine(fileException.Message);
+            }
+            catch (IOException ioException)
+            {
+                Console.WriteLine(ioException.Message);
+            }
+
             return plainText;
-            // byte[] dataArray = File.ReadAllBytes(path);
-
-            /*SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
-            keyArray = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-            byte[] trimmedBytes = new byte[24];
-            Buffer.BlockCopy(keyArray, 0, trimmedBytes, 0, 24);
-            keyArray = trimmedBytes; */
-            
-            
-            // TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            //set the secret key for the tripleDES algorithm
-            //tdes.Key = keyArray;
-            //mode of operation. there are other 4 modes. 
-            //We choose ECB(Electronic code Book)
-
-            //tdes.Mode = CipherMode.CBC;
-            //padding mode(if any extra byte added)
-            //tdes.Padding = PaddingMode.Zeros;
-            //tdes.Key = keyArray;
-            //tdes.IV = IV;
-            //ICryptoTransform cTransform = tdes.CreateDecryptor(tdes.Key, tdes.IV);
-            //byte[] resultArray = cTransform.TransformFinalBlock(
-            //                     dataArray, 0, dataArray.Length);
-            //Release resources held by TripleDes Encryptor                
-            //tdes.Clear();
-            //return the Clear decrypted TEXT
-            //return resultArray;
         }
 
         /// <summary>
@@ -316,26 +289,6 @@ namespace EncryptionSoftware
             {
                 Console.WriteLine(ioException.Message);
             }
-            /*byte[] encrypted;
-
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = keyArray;
-                aesAlg.IV = IV;
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(plainText);
-                        }
-                        encrypted = msEncrypt.ToArray();
-                    }
-                }
-            }
-            return encrypted; */
 
         }
 
@@ -374,26 +327,6 @@ namespace EncryptionSoftware
                 Console.WriteLine(ioException.Message);
             }
             return plainText;
-            /* string plaintext = null;
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = keyArray;
-                aesAlg.IV = IV;
-
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                        {
-                            plaintext = srDecrypt.ReadToEnd();
-                        }
-                    }
-                }
-            }
-            return plaintext; */
 
         }
     }
