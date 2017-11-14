@@ -28,7 +28,7 @@ namespace CryptoGuiWinForms
         public static string fileName;
         public static byte[] keyArrayAES;
         public static byte[] keyArrayRC2;
-        public static byte[] keyArrayTDES;
+        public static byte[] keyArrayTDES; 
         public Form1()
         {
             InitializeComponent();
@@ -125,8 +125,6 @@ namespace CryptoGuiWinForms
             string plainText = "";
             try
             {
-                // byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-                // fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 RC2 myRC2 = RC2.Create();
                 CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(keyArrayRC2, staticIV), CryptoStreamMode.Read);
@@ -205,9 +203,6 @@ namespace CryptoGuiWinForms
             string plainText = "";
             try
             {
-                // Changed random IV to IV that is static all the time! 
-                // byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7};
-                // fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 TripleDES myTDES = TripleDES.Create();
                 CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArrayTDES, staticIV), CryptoStreamMode.Read);
@@ -237,7 +232,7 @@ namespace CryptoGuiWinForms
         /// <summary>
         /// Encrypt plain text with AES algorithm and save it to a file
         /// </summary>
-        /// <param name="plainText">Plaintext</param>
+        /// <param name="fileName">Name of the file</param>
         /// <param name="keyArray">Key, which is converted to an byte array</param>
         /// <param name="IV">Initialization vector in an byte array</param>
         public static string EncryptAES(string fileName, byte[] keyArray, byte[] IV)
@@ -328,6 +323,7 @@ namespace CryptoGuiWinForms
                 file_label.Text = fileNameTemp;
 
             }
+
             // Get the filename from the end of the string
             int index = fileNameTemp.LastIndexOf("\\");
             string value = fileNameTemp.Substring(index, fileNameTemp.Length - index);
