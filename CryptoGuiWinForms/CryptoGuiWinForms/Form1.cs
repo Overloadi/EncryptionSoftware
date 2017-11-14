@@ -119,11 +119,12 @@ namespace CryptoGuiWinForms
             string path = Directory.GetCurrentDirectory() + "\\" + fileName;
             try
             {
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
                 string plainText = File.ReadAllText(path);
                 fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 RC2 myRC2 = RC2.Create();
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateEncryptor(KeyArray, IV), CryptoStreamMode.Write);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateEncryptor(KeyArray, IVTESTI), CryptoStreamMode.Write);
                 StreamWriter streamWriter = new StreamWriter(cryptoStream);
                 streamWriter.WriteLine(plainText);
                 streamWriter.Close();
@@ -157,10 +158,11 @@ namespace CryptoGuiWinForms
             string plainText = "";
             try
             {
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
                 fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 RC2 myRC2 = RC2.Create();
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IV), CryptoStreamMode.Read);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myRC2.CreateDecryptor(KeyArray, IVTESTI), CryptoStreamMode.Read);
                 StreamReader streamReader = new StreamReader(cryptoStream);
                 plainText = streamReader.ReadLine();
                 streamReader.Close();
@@ -193,6 +195,7 @@ namespace CryptoGuiWinForms
         {
             try
             {
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
                 string path = Directory.GetCurrentDirectory() + "\\" + fileName;
                 string plainText = File.ReadAllText(path);
                 fileName = "ENCRYPTED" + fileName;
@@ -200,7 +203,7 @@ namespace CryptoGuiWinForms
 
                 TripleDES myTDES = TripleDES.Create();
 
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateEncryptor(keyArray, IV), CryptoStreamMode.Write);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateEncryptor(keyArray, IVTESTI), CryptoStreamMode.Write);
                 StreamWriter streamWriter = new StreamWriter(cryptoStream);
                 streamWriter.WriteLine(plainText);
 
@@ -235,11 +238,12 @@ namespace CryptoGuiWinForms
             string plainText = "";
             try
             {
-
+                // Changed random IV to IV that is static all the time! 
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
                 fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 TripleDES myTDES = TripleDES.Create();
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArray, IV), CryptoStreamMode.Read);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myTDES.CreateDecryptor(keyArray, IVTESTI), CryptoStreamMode.Read);
                 StreamReader streamReader = new StreamReader(cryptoStream);
                 plainText = streamReader.ReadLine();
                 streamReader.Close();
@@ -274,11 +278,12 @@ namespace CryptoGuiWinForms
             string path = Directory.GetCurrentDirectory() + "\\" + fileName;
             try
             {
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,14,15};
                 string plainText = File.ReadAllText(path);
                 fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 Aes myAES = Aes.Create();
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateEncryptor(keyArray, IV), CryptoStreamMode.Write);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateEncryptor(keyArray, IVTESTI), CryptoStreamMode.Write);
                 StreamWriter streamWriter = new StreamWriter(cryptoStream);
                 streamWriter.WriteLine(plainText);
                 streamWriter.Close();
@@ -312,10 +317,11 @@ namespace CryptoGuiWinForms
             string plainText = "";
             try
             {
+                byte[] IVTESTI = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,14,15 };
                 fileName = "ENCRYPTED" + fileName;
                 FileStream fileStream = File.Open(fileName, FileMode.Open);
                 Aes myAES = Aes.Create();
-                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateDecryptor(keyArray, IV), CryptoStreamMode.Read);
+                CryptoStream cryptoStream = new CryptoStream(fileStream, myAES.CreateDecryptor(keyArray, IVTESTI), CryptoStreamMode.Read);
                 StreamReader streamReader = new StreamReader(cryptoStream);
                 plainText = streamReader.ReadLine();
                 streamReader.Close();
@@ -341,12 +347,20 @@ namespace CryptoGuiWinForms
 
         private void button_file_Click(object sender, EventArgs e)
         {
+
+            string fileNameTemp = "";
             DialogResult result = openFileDialog1.ShowDialog(); // Show File Dialog
             if (result == DialogResult.OK)
             {
-                fileName = openFileDialog1.FileName;
-                file_label.Text = fileName;
+                
+                fileNameTemp = openFileDialog1.FileName;
+                file_label.Text = fileNameTemp;
+
             }
+            int index = fileNameTemp.LastIndexOf("\\");
+            string value = fileNameTemp.Substring(index, fileNameTemp.Length - index);
+            value = value.Substring(1, value.Length - 1);
+            fileName = value;
 
         }
 
@@ -361,13 +375,13 @@ namespace CryptoGuiWinForms
 
             if (comboBox1.SelectedIndex == 1)
             {
-                fileName = "mutsis.txt";
+
                 string tempRC2 = DecryptRC2(fileName, keyArrayRC2, IVRC2);
                 textBox1.Text = tempRC2;
             }
             if (comboBox1.SelectedIndex == 2)
             {
-                fileName = "mutsis.txt";
+                
                 string tempTDES = DecryptTripleDes(fileName, keyArrayTDES, IVTDES);
                 textBox1.Text = tempTDES;
             }
@@ -375,7 +389,16 @@ namespace CryptoGuiWinForms
         }
         private void encrypt_Click(object sender, EventArgs e)
         {
-           if(comboBox1.SelectedIndex == 0)
+            if (comboBox1.SelectedValue == null)
+            {
+                textBox1.Text = "Please select algrithm";
+            }
+            if (fileName == null)
+            {
+                textBox1.Text = "Please select file !!";
+            }
+        
+            if (comboBox1.SelectedIndex == 0)
             {
                 string key = "irvhjklqvbytdjkpdksnh";
                 // string fileName = "test.txt";
@@ -385,7 +408,6 @@ namespace CryptoGuiWinForms
                 byte[] trimmedBytes = new byte[24];
                 Buffer.BlockCopy(keyArrayAES, 0, trimmedBytes, 0, 24);
                 keyArrayAES = trimmedBytes;
-                fileName = "mutsis.txt";
                 using (Aes myAes = Aes.Create())
                 {
                     myAes.Key = keyArrayAES;
@@ -398,9 +420,15 @@ namespace CryptoGuiWinForms
             }
            if (comboBox1.SelectedIndex == 1)
             {
+                string key = "irvhjklqvbytdjkpdksnh";
+                SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
+                keyArrayRC2 = hash2.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes2 = new byte[8];
+                Buffer.BlockCopy(keyArrayRC2, 0, trimmedBytes2, 0, 8);
+                keyArrayRC2 = trimmedBytes2;
                 using (RC2 myRC2 = RC2.Create())
                 {
-                    string key = "irvhjklqvbytdjkpdksnh";
+                    
 
                     /*SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
                     keyArrayRC2 = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
@@ -408,12 +436,7 @@ namespace CryptoGuiWinForms
                     Buffer.BlockCopy(keyArrayRC2, 0, trimmedBytes, 0, 24);
                     keyArrayRC2 = trimmedBytes; */
 
-                    SHA512CryptoServiceProvider hash2 = new SHA512CryptoServiceProvider();
-                    keyArrayRC2 = hash2.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-                    byte[] trimmedBytes2 = new byte[8];
-                    Buffer.BlockCopy(keyArrayRC2, 0, trimmedBytes2, 0, 8);
-                    keyArrayRC2 = trimmedBytes2;
-                    fileName = "mutsis.txt";
+                    
                     IVRC2 = myRC2.IV;
                     string fileN2 = EncryptRC2(fileName, keyArrayRC2, IVRC2);
                     byte[] tempbyte2 = File.ReadAllBytes(fileN2);
@@ -423,11 +446,18 @@ namespace CryptoGuiWinForms
             }
            if (comboBox1.SelectedIndex == 2)
             {
+                string key = "irvhjklqvbytdjkpdksnh";
+                SHA512CryptoServiceProvider hash = new SHA512CryptoServiceProvider();
+                keyArrayTDES = hash.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                byte[] trimmedBytes = new byte[24];
+                Buffer.BlockCopy(keyArrayTDES, 0, trimmedBytes, 0, 24);
+                keyArrayTDES = trimmedBytes; 
                 using (TripleDES myDes = TripleDES.Create())
                 {
                     keyArrayTDES = myDes.Key;
-                    IVTDES = myDes.IV;
-                    fileName = "mutsis.txt";
+                    byte[] IVTDES = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+                    //VTDES = myDes.IV;
+                    
                     string fileN3 = EncryptTripleDes(fileName, keyArrayTDES, IVTDES);
                     byte[] tempbyte3 = File.ReadAllBytes(fileN3);
                     textBox1.Text = Encoding.UTF8.GetString(tempbyte3);
@@ -435,6 +465,26 @@ namespace CryptoGuiWinForms
                 }
             }
            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string ip_address = textBox3.Text;
+            int port = int.Parse(textBox2.Text);
+
+                string path = Directory.GetCurrentDirectory() + "\\" + fileName;
+                TcpClient client = new TcpClient();
+                IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse(ip_address), port);
+                client.Connect(serverEndPoint);
+                NetworkStream ns = client.GetStream();
+
+                byte[] fileData = File.ReadAllBytes(path);
+                ns.Write(fileData, 0, fileData.Length);
+                Console.WriteLine("Sent the data from file");
+
+                client.Close();
+                ns.Close();
+            
         }
     }
            
