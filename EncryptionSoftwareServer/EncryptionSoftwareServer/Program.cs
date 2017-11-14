@@ -5,46 +5,53 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Server for the encryption software. Listens to port 8888 and accepts clients from any IP address. When a client connects, the server reads the message in chunks
+/// and writes the content of the message to a file.
+/// </summary>
 namespace EncryptionSoftwareServer
 {
     class Program
     {
         static void Main(string[] args)
         {
-            ThreadPool.QueueUserWorkItem(StartTCPServer);
+            string fileName = "received.txt";
 
-        }
-        private static void StartTCPServer(object state)
-        {
-            TcpListener tcpServer = new TcpListener(IPAddress.Parse("192.168.0.3"), 5442);
-            tcpServer.Start();
-            TcpClient client = tcpServer.AcceptTcpClient();
+            // Create and start server
+            int port = 8888;
+            TcpListener server = new TcpListener(IPAddress.Any, port);
+            server.Start();
+            Console.WriteLine("Listening to port: " + port);
+            Byte[] bytes = new Byte[256];
+            Socket client = server.AcceptSocket();
+            Console.WriteLine("Client connected");
+            int bytesRead = 0;
 
-            Console.WriteLine("Client connection accepted from " + client.Client.RemoteEndPoint + ".");
-
-            StreamWriter sw = new StreamWriter("destination.txt");
-
-            byte[] buffer = new byte[1500];
-            int bytesRead = 1;
-
-            while (bytesRead > 0)
+            // Read incoming data
+            using (NetworkStream ns = new NetworkStream(client))
             {
-                bytesRead = client.GetStream().Read(buffer, 0, 1500);
-
-                if (bytesRead == 0)
+                int messageSize = 256;
+                do
                 {
-                    break;
+                    byte[] chunks = new byte[messageSize];
+                    bytesRead = ns.Read(bytes, 0, chunks.Length);
                 }
-
-                sw.BaseStream.Write(buffer, 0, bytesRead);
-                Console.WriteLine(bytesRead + " written.");
+                while (bytesRead != 0); 
+              
             }
-
-            sw.Close();
+            int y = bytes.Length - 1;
+            while (bytes[y] == 0)
+                --y;
+            byte[] dataToSave = new byte[y + 1];
+            Array.Copy(bytes, dataToSave, y + 1);
+            Console.WriteLine("Message received!");
+            FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            fileStream.Write(dataToSave, 0, dataToSave.Length);
+            fileStream.Close();
+            client.Close();
+            server.Stop();
         }
-
     }
 }
